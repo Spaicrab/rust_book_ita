@@ -75,7 +75,8 @@ ignorelist = [
   "string",
   "clean",
   "listing",
-  "list"
+  "list",
+  "tree"
 ]
 
 
