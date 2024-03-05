@@ -1,12 +1,12 @@
 ## Cos'è l'Ownership?
 
-*Ownership* è un insieme di regole che governano come un programma Rust gestisce la memoria.
-Tutti i programmi devono gestire il modo in cui usano la memoria di un computer mentre eseguono.
+L'*Ownership* è un insieme di regole che governano come un programma Rust gestisce la memoria.
+Tutti i programmi devono gestire il modo in cui usano la memoria del computer mentre eseguono.
 Alcuni linguaggi hanno la garbage collection che cerca regolarmente la memoria non più utilizzata
 mentre il programma è in esecuzione; in altri linguaggi, il programmatore deve esplicitamente
 allocare e liberare la memoria. Rust utilizza un terzo approccio: la memoria è gestita
 attraverso un sistema di ownership con un insieme di regole che vengono controllate dal compilatore. Se
-quìalsiasi di queste regole viene violata, il programma non verrà compilato. Nessuna delle caratteristiche
+qualsiasi di queste regole viene violata, il programma non verrà compilato. Nessuna delle caratteristiche
 dell'ownership rallenterà il tuo programma mentre è in esecuzione.
 
 Poiché l'ownership è un concetto nuovo per molti programmatori, richiede un po' di tempo
@@ -15,23 +15,27 @@ e le regole del sistema di ownership, più troverai naturale
 sviluppare codice che è sicuro ed efficiente. Continua così!
 
 Quando capisci l'ownership, avrai una solida base per capire
-le caratteristiche che rendono unico Rust. In questo capitolo, imparerai l'ownership lavorando
+le caratteristiche che rendono Rust unico. In questo capitolo, imparerai l'ownership lavorando
 attraverso alcuni esempi che si concentrano su una struttura dati molto comune:
 le stringhe.
+
+
 
 > ### Lo Stack e l'Heap
 >
 > Molti linguaggi di programmazione non richiedono di pensare molto allo stack e all'
-> heap. Ma in un linguaggio di programmazione di sistema come Rust, se un
-> valore è nello stack o nell'heap influisce sul modo in cui il linguaggio  si comporta e perché
-> devi fare alcune decisioni. Parti dell'ownership verranno descritte in
-> relazione allo stack e all'heap più avanti in questo capitolo, quindi ecco una breve
-> spiegazione per preparazione.
+> heap. <!-- Potrei aver cambiato il significato della prossima frase, ma non sono sicuro. -->
+> Ma in un linguaggio di programmazione di sistema come Rust, se un
+> valore è nello stack o nell'heap influisce sul modo in cui il linguaggio si comporta e
+> e ti obbliga a fare alcune decisioni.
+> Parti dell'ownership verranno descritte in relazione allo stack e
+> all'heap più avanti in questo capitolo, quindi ecco una breve
+> spiegazione come preparazione.
 >
 > Sia lo stack che l'heap sono parti di memoria disponibili al tuo codice da usare
 > in runtime, ma sono strutturati in modi diversi. Lo stack memorizza i
 > valori nell'ordine in cui li riceve e rimuove i valori nell'ordine
-> opposto. Questo viene chiamato *ultimo entrato, primo uscito*. Pensa ad un mucchio di
+> opposto. Questo viene chiamato *ultimo in entrata, primo in uscita*. Pensa ad un mucchio di
 > piatti: quando ne aggiungi altri, li metti in cima alla pila, e quando
 > hai bisogno di un piatto, ne prendi uno dalla cima. Aggiungere o rimuovere piatti dal
 > mezzo o dal fondo non funzionerebbe altrettanto bene! Aggiungere dati viene chiamato *pushing
@@ -99,8 +103,8 @@ esempi all'interno di una funzione `main` manualmente. Di conseguenza, i nostri 
 po' più concisi, permettendoci di concentrarci sui dettagli effettivi piuttosto che
 sul codice boilerplate.
 
-Come primo esempio di ownership, esamineremo lo *scope* di alcune variabili. A
-scope è l'intervallo all'interno di un programma per il quale un elemento è valido. Prendi il
+Come primo esempio di ownership, esamineremo lo *scope* di alcune variabili. Lo
+scope è l'intervallo all'interno di un programma per il quale un elemento è valido. Prendi la
 seguente variabile:
 
 ```rust
@@ -120,8 +124,8 @@ valida</span>
 
 In altre parole, ci sono due momenti importanti qui:
 
-* Quando `s` entra *in* scope, è valida.
-* Rimane valida fino a quando esce *dal* scope.
+* Quando `s` *entra* in scope, è valida.
+* Rimane valida fino a quando *esce* dallo scope.
 
 A questo punto, la relazione tra scope e quando le variabili sono valide è
 simile a quella che si ha in altri linguaggi di programmazione. Ora costruiremo su questa
@@ -136,10 +140,10 @@ rapidamente e banalmente copiati per creare una nuova istanza indipendente se un
 parte del codice ha bisogno di usare lo stesso valore in un diverso scope. Ma vogliamo
 analizzare i dati che sono memorizzati nell'heap e esplorare come Rust sa quando
 pulire quei dati, e il tipo `String` è un ottimo esempio.
-
+ 
 Ci concentreremo sulle parti di `String` che riguardano l'ownership. Questi
 aspetti si applicano anche ad altri tipi di dati complessi, sia che siano forniti da 
-la libreria standard, sia che siano creati da te. Discuteremo `String` in modo più approfondito a 
+la libreria standard, sia che siano creati da te. Discuteremo `String` in modo più approfondito nel 
 [Capitolo 8][ch8]<!-- ignore -->.
 
 Abbiamo già visto le stringhe letterali, dove un valore stringa è incorporato nel nostro
@@ -156,20 +160,20 @@ literale utilizzando la funzione `from`, in questo modo:
 let s = String::from("ciao");
 ```
 
-L'operatore doppio due punti `::` ci consente di impostare questo particolare `from`
-funzione sotto il tipo `String` piuttosto che utilizzare una sorta di nome come
-`stringa_da`. Discuteremo questa sintassi più avanti nella sezione ["Sintassi del
-metodo"][method-syntax]<!-- ignore --> del Capitolo 5, e quando parleremo
+L'operatore doppio due punti `::` ci consente di impostare questa particolare funzione `from` 
+sotto il tipo `String` piuttosto che utilizzare una sorta di nome come
+`stringa_da`. Discuteremo questa sintassi più avanti nella sezione ["Sintassi dei
+metodi"][method-syntax]<!-- ignore --> del Capitolo 5, e quando parleremo
 di impostazione dei namespace con i moduli in ["Percorsi per fare riferimento a un elemento nella
 Albero del modulo"][paths-module-tree]<!-- ignore --> nel Capitolo 7.
 
-Questo tipo di stringa *può* essere modificato:
+Questo tipo di stringa *può* essere modificata:
 
 ```rust
 {{#rustdoc_include ../listings/ch04-understanding-ownership/no-listing-01-can-mutate-string/src/main.rs:here}}
 ```
 
-Quindi, qual è la differenza qui? Perché `String` può essere modificato ma i letterali
+Quindi, qual è la differenza qui? Perché `String` può essere modificata ma i letterali
 no? La differenza sta nel modo in cui questi due tipi trattano la memoria.
 
 ### Memoria e allocazione
@@ -182,7 +186,7 @@ binario per ciascun pezzo di testo la cui dimensione è sconosciuta al momento d
 dimensione potrebbe cambiare durante l'esecuzione del programma.
 
 Con il tipo `String`, per supportare un pezzo di testo mutabile e in grado di crescere,
-abbiamo bisogno di allocare una quantità di memoria sul heap, sconosciuta al momento della compilazione,
+abbiamo bisogno di allocare una quantità di memoria sull'heap, sconosciuta al momento della compilazione,
 per contenere i contenuti. Questo significa:
 
 * La memoria deve essere richiesta all'allocatore di memoria al momento dell'esecuzione.
@@ -192,11 +196,11 @@ per contenere i contenuti. Questo significa:
 La prima parte è fatta da noi: quando chiamiamo `String::from`, la sua implementazione
 richiede la memoria di cui ha bisogno. Questo è praticamente universale nelle lingue di programmazione.
 
-Tuttavia, la seconda parte è diversa. In lingue con un *garbage collector
+Tuttavia, la seconda parte è diversa. Nelle lingue con un *garbage collector
 (GC)*, il GC tiene traccia delle pulizie e della memoria che non viene più utilizzata
-poi, e non dobbiamo pensarci. Nella maggior parte delle lingue senza un GC,
+più, e non dobbiamo pensarci. Nella maggior parte delle lingue senza un GC,
 è nostra responsabilità identificare quando la memoria non viene più utilizzata e chiamare
-codice per liberarlo esplicitamente, proprio come abbiamo fatto per richiederlo. Fare questo
+codice per liberarla esplicitamente, proprio come abbiamo fatto per richiederla. Fare questo
 correttamente è storicamente un problema di programmazione difficile. Se dimentichiamo,
 sprecheremo memoria. Se lo facciamo troppo presto, avremo una variabile non valida. Se lo facciamo
 due volte, è anche un bug. Dobbiamo abbinare esattamente un `allocazione` con
@@ -215,7 +219,7 @@ all'allocatore: quando `s` esce dallo scope. Quando una variabile esce dallo sco
 [`drop`][drop]<!-- ignore -->, ed è qui che l'autore di `String` può mettere
 il codice per restituire la memoria. Rust chiama `drop` automaticamente alla parentesi graffa di chiusura.
 
-> Nota: In C++, questo modello di desallocazione delle risorse alla fine della durata di un elemento è
+> Nota: In C++, questo modello di deallocazione delle risorse alla fine della durata di un elemento è
 > a volte chiamato *Resource Acquisition Is Initialization (RAII)*.
 > La funzione `drop` in Rust ti sarà familiare se hai usato
 > schemi RAII.
@@ -263,8 +267,8 @@ Dai un'occhiata alla Figura 4-1 per vedere cosa sta succedendo a `String` sotto 
 La lunghezza è quanta memoria, in byte, i contenuti di `String` stanno
 attualmente utilizzando. La capacità è la quantità totale di memoria, in byte, che la 
 `String` ha ricevuto dall'allocatore. La differenza tra lunghezza e
-capacità è importante, ma non in questo contesto, quindi per ora è ok
-ignora la capacità.
+capacità è importante, ma non in questo contesto, quindi per ora
+ignorare la capacità è ok.
 
 Quando assegniamo `s1` a `s2`, i dati di `String` vengono copiati, il che significa che copiamo il
 puntatore, la lunghezza e la capacità che sono nello stack. Noi non copiamo il
@@ -343,7 +347,7 @@ può essere assunta come economica in termini di prestazioni a runtime.
 
 Se vogliamo *veramente* copiare in profondità i dati dell'heap della `String`, non solo i
 dati dello stack, possiamo utilizzare un metodo comune chiamato `clone`. Discuteremo della
-sintassi del metodo nel Capitolo 5, ma poiché i metodi sono una caratteristica comune in molte
+sintassi del metodo nel Capitolo 5, ma poiché i metodi sono una caratteristica comune in molti
 linguaggi di programmazione, probabilmente li hai già visti prima.
 
 Ecco un esempio del metodo `clone` in azione:
@@ -359,8 +363,8 @@ Quando vedi una chiamata a `clone`, sai che sta venendo eseguito un codice arbit
 
 #### Dati solo in Stack: Copy
 
-C'è un altro dettaglio di cui non abbiamo ancora parlato. Questo codice utilizza gli
-interi - parte del quale è stato mostrato nella Listing 4-2 - funziona ed è valido:
+C'è un altro dettaglio di cui non abbiamo ancora parlato. Questo codice - parte del quale
+è stato mostrato nella Listing 4-2 - utilizza gli interi, funziona ed è valido:
 
 ```rust
 {{#rustdoc_include ../listings/ch04-understanding-ownership/no-listing-06-copy/src/main.rs:here}}
@@ -432,7 +436,7 @@ funzione che restituisce un valore, con annotazioni simili a quelle nell'elenco 
 <span class="caption">Elencazione 4-4: Trasferimento della proprietà dei valori di ritorno</span>
 
 La proprietà di una variabile segue lo stesso schema ogni volta: l'assegnazione di un
-valore a un'altra variabile lo sposta. Quando una variabile che include dati sulla
+valore a un'altra variabile lo sposta. Quando una variabile che include dati sull'
 heap esce dallo scope, il valore sarà pulito da `drop` a meno che la proprietà
 dei dati non sia stata spostata su un'altra variabile.
 
