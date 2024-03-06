@@ -3,7 +3,7 @@
 Il problema con il codice delle tuple in Listing 4-5 è che dobbiamo restituire la
 `String` alla funzione chiamante in modo da poter ancora utilizzare la `String` dopo la
 chiamata a `calculate_length`, perché la `String` è stata spostata in
-`calculate_length`. Invece, possiamo fornire un riferimento al valore `String`. 
+`calculate_length`. Invece, possiamo fornire un riferimento del valore `String`. 
 Un *riferimento* è come un puntatore in quanto è un indirizzo a cui possiamo fare riferimento per accedere
 ai dati memorizzati a quell'indirizzo; tali dati sono di proprietà di un'altra variabile.
 A differenza di un puntatore, un riferimento garantisce di puntare a un valore valido di un
@@ -119,10 +119,10 @@ durare fino a quando è usato nel `println!`, ma tra la creazione di quel
 riferimento mutabile e il suo utilizzo, abbiamo cercato di creare un altro riferimento mutabile
 in `r2` che prende in prestito gli stessi dati di `r1`.
 
-La restrizione che impedisce più riferimenti mutabili agli stessi dati al
+La restrizione che impedisce più riferimenti mutabili agli stessi dati allo
 stesso tempo consente la mutazione ma in modo molto controllato. È qualcosa
-che i nuovi Rustacean faticano perché la maggior parte delle lingue ti permette di mutare
-quando vuoi. Il vantaggio di avere questa restrizione è che Rust può
+con cui i nuovi Rustacean fanno fatica perché la maggior parte delle lingue ti permette di mutare
+i puntatori quando vuoi. Il vantaggio di avere questa restrizione è che Rust può
 prevenire le gare sui dati a tempo di compilazione. Una *gara dati* è simile a una gara
 condizione e succede quando queste tre condizioni si verificano:
 
@@ -131,7 +131,7 @@ condizione e succede quando queste tre condizioni si verificano:
 * Non c'è nessun meccanismo utilizzato per sincronizzare l'accesso ai dati.
 
 Le gare di dati causano un comportamento non definito e possono essere difficili da diagnosticare e correggere
-quando stai cercando di rintracciarli a runtime; Rust previene questo problema da
+quando stai cercando di rintracciarli a runtime; Rust previene questo problema 
 rifiutando di compilare codice con gare di dati!
 
 Come sempre, possiamo utilizzare le parentesi graffe per creare un nuovo ambito, consentendo
@@ -154,13 +154,12 @@ Ecco l'errore:
 {{#include ../listings/ch04-understanding-ownership/no-listing-12-immutable-and-mutable-not-allowed/output.txt}}
 ```
 
-Whew! *Anche* non possiamo avere un riferimento mutabile mentre abbiamo un riferimento immutabile
+Whew! Inoltre non possiamo avere un riferimento mutabile mentre abbiamo un riferimento immutabile
 allo stesso valore.
 
-Gli utenti di un riferimento immutabile non si aspettano il valore di cambiare improvvisamente sotto
+Gli utenti di un riferimento immutabile non si aspettano il valore di cambiare improvvisamente sotto di 
 loro! Tuttavia, sono consentiti più riferimenti immutabili perché nessuno
-che stia solo leggendo i dati ha la capacità di influenzare la lettura degli altri
-dei dati.
+che stia solo leggendo i dati ha la capacità di influenzare la lettura degli altri dati.
 Nota che l'ambito di un riferimento inizia da dove viene introdotto e continua
 fino all'ultima volta che quel riferimento viene utilizzato. Ad esempio, questo codice sarà
 compilato perché l'ultimo utilizzo dei riferimenti immutabili, il `println!`,
